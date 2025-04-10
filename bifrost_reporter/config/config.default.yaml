@@ -1,0 +1,13 @@
+# When accessing this in the code you'll work with it as a dict.
+# ENV variables will be replaced with their values. This is done with the envyaml package that is in the code template `load_config`.
+# By convention all variables for the project should have the BIFROST_MICROLAB_REPORTER_* prefix.
+# e.g
+# name: ${BIFROST_MICROLAB_REPORTER_NAME}
+
+project:
+    name: "EQA"
+
+Illumina:
+    new:  "/home/simonescrima/Desktop/bifrost_reporter/input/bifrost_samples/sample_sheet.xlsx"
+    original:  "/dpssi/data/Projects/rar_research/proj/Shared_projects/ms_WP9_benchmark/Illumina_original/sample_sheet.xlsx"
+
