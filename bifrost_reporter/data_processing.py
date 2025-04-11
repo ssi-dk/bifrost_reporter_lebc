@@ -76,6 +76,10 @@ def bson_objectid_constructor(loader, node):
 # Register the constructor for custom YAML tags
 yaml.add_constructor('!bson.objectid.ObjectId', bson_objectid_constructor)
 
+
+
+
+
 # ------------------------------------
 # PARSERS FOR DIFFERENT BIFROST TOOLS
 # ------------------------------------
@@ -102,6 +106,8 @@ def parse_mlst(list_files):
     df.columns = range(df.shape[1])
     return df
 
+
+
 def parse_kmapointmutations(list_files):
     """
     Extract point mutation data from KMA-based pointmutations_tsv reports.
@@ -125,6 +131,8 @@ def parse_kmapointmutations(list_files):
         df = pd.DataFrame()
     return df
 
+
+
 def check_stampers(list_files):
     """
     Evaluate the quality control (QC) summary stamps from YAML.
@@ -141,6 +149,8 @@ def check_stampers(list_files):
             else:
                 d[data["sample"]["name"]] = "Requirement Not Met"
     return pd.DataFrame.from_dict(d, orient='index')
+
+
 
 def parse_amrfinder(list_files):
     """
@@ -166,6 +176,8 @@ def parse_amrfinder(list_files):
     df = pd.concat(d, names=['Sample Name']).reset_index(level=0).set_index("Sample Name")
     return df
 
+
+
 def parse_species(list_files):
     """
     Parse Kraken-style species classification output.
@@ -184,6 +196,8 @@ def parse_species(list_files):
         "name_classified_species_1", "percent_classified_species_1",
         "name_classified_species_2", "percent_classified_species_2",
         'percent_unclassified', 'sum_unclassified_species1']]
+
+
 
 def parse_finder_tools(list_files, ariba_type):
     """
