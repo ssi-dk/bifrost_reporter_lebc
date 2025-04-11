@@ -181,38 +181,49 @@ if __name__ == '__main__':
     # Load environment config with sample paths
     config = data_processing.get_config()
 
-    # Load and check new Illumina sample directories and files
-    new_illumina = check_samples(retrieve_samples(config["Illumina"]["new"]))
+    # Load and check new and original Illumina sample directories and files
+    try:
+        # Retrieve sample paths from the config and check for expected files
+        new_illumina_paths = retrieve_samples(config["Illumina"]["new"])
+        original_illumina_paths = retrieve_samples(config["Illumina"]["original"])
 
-    # Process the validated files from new Illumina samples
-    l_new = data_collection_from_dict(new_illumina)
+        new_illumina = check_samples(new_illumina_paths)
+        original_data = check_samples(original_illumina_paths)
 
-    # Print result for quick inspection
-    print(l_new)
+        # Collect parsed data from each set
+        l_new = data_collection_from_dict(new_illumina)
+        l_og = data_collection_from_dict(original_data)
+
+    except Exception as e:
+        logging.error(f"Failed to retrieve or check Illumina sample data: {str(e)}")
+        raise SystemExit(f"Error loading sample paths or data collection failed: {e}")
 
     
+   
+    # This list will hold dictionaries of prefix-separated DataFrames for each analysis result
+    l_dict_dfs = []
 
+    for df in l_new:
+        try:
+            # Extract sample prefixes from DataFrame index and group rows by prefix
+            df["Prefix"] = df.index.to_series().apply(extract_prefix)
+            # Create dictionary where each key is a prefix and value is a DataFrame subset
+            dict_dfs = {prefix: sub_df.drop(columns=["Prefix"]) for prefix, sub_df in df.groupby("Prefix")}
+            l_dict_dfs.append(dict_dfs)
+            dfs = {}  # Initialize empty dict (not currently used)
+        except:
+            # Skip any DataFrames that fail this grouping step
+            continue
 
-    # l_dict_dfs=[]
-    
-    # for df in l_new:
-    #     try:
-    #         df["Prefix"] = df.index.to_series().apply(extract_prefix)
-    #         dict_dfs = {prefix: sub_df.drop(columns=["Prefix"]) for prefix, sub_df in df.groupby("Prefix")}
-    #         l_dict_dfs.append(dict_dfs)
-    #         dfs ={}
-    #     except:
-    #         continue
-    #         #print( df.index.to_series())
-    #         #print(df)
-    
+    # Merge new and original MLST results per prefix
+    mlst_dict = {key: pd.concat([df, l_og[0]]) for key, df in l_dict_dfs[0].items()}
 
-    # print(l_dict_dfs)    
-    # mlst_dict = {key: pd.concat([df, l_og[0]]) for key, df in l_dict_dfs[0].items()}
-    # plasmid_finder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[1].items()}
-    
+    # Merge new and original PlasmidFinder results per prefix
+    plasmid_finder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[1].items()}
 
-    # # Check one of the updated DataFrames
-    #print(plasmid_finder["HER_BTP_WGS"])
+    # Print merged PlasmidFinder results for visual inspection
+    print(plasmid_finder)
+
+    # You could also print/inspect other merged outputs similarly if needed
     
 

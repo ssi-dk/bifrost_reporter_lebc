@@ -52,18 +52,32 @@ except Exception as e:
     print(f"Unexpected error: {e}")
     PACKAGE_DIR = None
 
-# Load YAML configuration with environment variable substitution support
-# Falls back to config.default.yaml if no custom path is provided
+
+
 def get_config(config_path: str = None):
+    """
+    Load specified YAML configuration file. If the path is None falls back to 
+    the default config in the package directory 
+
+    Parameters:
+    ----------
+    config_path : str, optional
+        Path to the YAML config file. If None, defaults to 'config.default.yaml' in PACKAGE_DIR.
+
+    Returns:
+    -------
+    dict
+        Configuration parameters as a dictionary.
+    """
     if config_path is None:
-        config_path = ""
+        config_path = os.path.join(PACKAGE_DIR, "config", "config.default.yaml")
 
-    config: dict = envyaml.EnvYAML(
-        f"{PACKAGE_DIR}/config/config.default.yaml",
-        strict=False
-    ).export()
-
-    return config
+    try:
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+        return config
+    except Exception as e:
+        raise RuntimeError(f"Failed to load config file: {config_path}. Error: {str(e)}")
 
 # ----------------------
 # CUSTOM YAML HANDLERS
