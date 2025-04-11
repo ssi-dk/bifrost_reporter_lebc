@@ -75,7 +75,7 @@ Each sample directory must contain:
 
 Run the following command:
 ```
-bifrost_reporter/data_collection.py
+python bifrost_reporter/data_collection.py
 ```
 
 
