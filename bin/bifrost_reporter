@@ -1,0 +1,99 @@
+from bifrost_reporter.data_processing import get_config
+from bifrost_reporter.data_collection import (
+    retrieve_samples,
+    check_samples,
+    data_collection_from_dict,
+    extract_prefix)
+import argparse
+import logging
+import yaml
+import pandas as pd
+pd.set_option('display.max_rows', 1000)  # Show more rows when displaying DataFrames
+pd.set_option('display.max_colwidth', None)  # Don't truncate column contents
+
+
+
+def setup_logging(log_file):
+    """
+    Function to configure logging settings
+
+    Parameters:
+    ----------
+    log_file : str
+        The path of the log file where log messages will be written
+    """
+    logging.basicConfig(
+        filename=log_file,
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+
+def parse_arguments():
+    """
+    Parses command-line arguments for the script.
+    """
+    parser = argparse.ArgumentParser(
+        description="Bifrost Results Aggregator: Check sample files, parse result YAMLs, and merge analysis outputs."
+    )
+    parser.add_argument(
+        "-c", "--config",
+        required=True,
+        help="Path to the environment YAML configuration file containing sample paths."
+    )
+    parser.add_argument(
+        "-l", "--log",
+        default="bifrost_results.log",
+        help="Path to the log file (default: bifrost_results.log)."
+    )
+    return parser.parse_args()
+
+
+
+
+
+if __name__ == '__main__':
+    args = parse_arguments()
+
+    # Set up logging
+    setup_logging(args.log)
+
+    # Load environment config
+    config = get_config(args.config)
+
+    try:
+        # Retrieve sample paths from config
+        new_illumina_paths = retrieve_samples(config["Illumina"]["new"])
+        original_illumina_paths = retrieve_samples(config["Illumina"]["original"])
+
+        # Check for expected files in sample directories
+        new_illumina = check_samples(new_illumina_paths)
+        original_data = check_samples(original_illumina_paths)
+
+        # Collect parsed data
+        l_new = data_collection_from_dict(new_illumina)
+        l_og = data_collection_from_dict(original_data)
+
+    except Exception as e:
+        logging.error(f"Failed to retrieve or check Illumina sample data: {str(e)}")
+        raise SystemExit(f"Error loading sample paths or data collection failed: {e}")
+
+    # Organize new results by prefix
+    l_dict_dfs = []
+    for df in l_new:
+        try:
+            df["Prefix"] = df.index.to_series().apply(extract_prefix)
+            dict_dfs = {prefix: sub_df.drop(columns=["Prefix"]) for prefix, sub_df in df.groupby("Prefix")}
+            l_dict_dfs.append(dict_dfs)
+        except:
+            continue
+
+    # Merge new and original MLST results by prefix
+    mlst_dict = {key: pd.concat([df, l_og[0]]) for key, df in l_dict_dfs[0].items()}
+
+    # Merge new and original PlasmidFinder results by prefix
+    plasmid_finder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[1].items()}
+
+    # Print merged PlasmidFinder results
+    print(plasmid_finder)
