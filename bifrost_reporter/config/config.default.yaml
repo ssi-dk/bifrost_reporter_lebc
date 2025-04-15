@@ -8,6 +8,6 @@ project:
     name: "EQA"
 
 Illumina:
-    new:  "/home/simonescrima/Desktop/bifrost_reporter/input/bifrost_samples/sample_sheet.xlsx"
-    original:  "/dpssi/data/Projects/rar_research/proj/Shared_projects/ms_WP9_benchmark/Illumina_original/sample_sheet.xlsx"
+    new:  "/home/simonescrima/Desktop/bifrost_samples/sample_sheet.xlsx"
+    original:  "/home/simonescrima/Desktop/bifrost_samples/sample_sheet.xlsx"
 

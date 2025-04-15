@@ -1,33 +1,10 @@
+#!/usr/bin/env python
+
 # Import necessary libraries
-import data_processing  # Custom module with parsing and utility functions
+from bifrost_reporter import data_processing
 import logging
 import pandas as pd
-pd.set_option('display.max_rows', 1000)  # Show more rows when displaying DataFrames
-pd.set_option('display.max_colwidth', None)  # Don't truncate column contents
-from bson import ObjectId  # Used for MongoDB object IDs if needed
-import yaml
-import numpy as np
-import glob
 import os
-from collections import defaultdict
-
-
-
-def setup_logging(log_file):
-    """
-    Function to configure logging settings
-
-    Parameters:
-    ----------
-    log_file : str
-        The path of the log file where log messages will be written
-    """
-    logging.basicConfig(
-        filename=log_file,
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
 
 
 
@@ -177,42 +154,6 @@ def extract_prefix(sample_name):
 
 
 
-if __name__ == '__main__':
-    # Load environment config with sample paths
-    config = data_processing.get_config()
 
-    # Load and check new Illumina sample directories and files
-    new_illumina = check_samples(retrieve_samples(config["Illumina"]["new"]))
-
-    # Process the validated files from new Illumina samples
-    l_new = data_collection_from_dict(new_illumina)
-
-    # Print result for quick inspection
-    print(l_new)
-
-    
-
-
-    # l_dict_dfs=[]
-    
-    # for df in l_new:
-    #     try:
-    #         df["Prefix"] = df.index.to_series().apply(extract_prefix)
-    #         dict_dfs = {prefix: sub_df.drop(columns=["Prefix"]) for prefix, sub_df in df.groupby("Prefix")}
-    #         l_dict_dfs.append(dict_dfs)
-    #         dfs ={}
-    #     except:
-    #         continue
-    #         #print( df.index.to_series())
-    #         #print(df)
-    
-
-    # print(l_dict_dfs)    
-    # mlst_dict = {key: pd.concat([df, l_og[0]]) for key, df in l_dict_dfs[0].items()}
-    # plasmid_finder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[1].items()}
-    
-
-    # # Check one of the updated DataFrames
-    #print(plasmid_finder["HER_BTP_WGS"])
     
 
