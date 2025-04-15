@@ -106,6 +106,9 @@ Use the installed command-line tool like this:
 ```bash
 bifrost_reporter -c config.yaml -l report.log
 ```
-Argument | Description | Required | Default
--c, --config | Path to your configuration YAML file. | Yes | —
--l, --log | Path to your log file. | No | bifrost_results.log
+### Arguments
+
+| Argument       | Description                              | Required | Default              |
+|:---------------|:------------------------------------------|:----------|:----------------------|
+| `-c`, `--config` | Path to your configuration YAML file.     | Yes       | —                    |
+| `-l`, `--log`    | Path to your log file.                    | No        | `bifrost_results.log` |
