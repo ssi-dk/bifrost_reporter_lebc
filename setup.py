@@ -7,6 +7,7 @@ setup(
     packages=find_namespace_packages(include=['bifrost_reporter',
                                               'bifrost_reporter.*'
                                              ]),
+    scripts=['bin/bifrost_reporter'],
     install_requires=['pandas',
                       'pymongo',
                       'envyaml',

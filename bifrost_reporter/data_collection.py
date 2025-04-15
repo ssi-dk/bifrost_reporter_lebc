@@ -1,34 +1,12 @@
 # Import necessary libraries
-import data_processing  # Custom module with parsing and utility functions
+from bifrost_reporter import data_processing
 import logging
-import pandas as pd
-pd.set_option('display.max_rows', 1000)  # Show more rows when displaying DataFrames
-pd.set_option('display.max_colwidth', None)  # Don't truncate column contents
 from bson import ObjectId  # Used for MongoDB object IDs if needed
-import yaml
+import pandas as pd
 import numpy as np
 import glob
 import os
 from collections import defaultdict
-
-
-
-def setup_logging(log_file):
-    """
-    Function to configure logging settings
-
-    Parameters:
-    ----------
-    log_file : str
-        The path of the log file where log messages will be written
-    """
-    logging.basicConfig(
-        filename=log_file,
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
 
 
 def retrieve_samples(sample_sheet_path):
@@ -177,53 +155,6 @@ def extract_prefix(sample_name):
 
 
 
-if __name__ == '__main__':
-    # Load environment config with sample paths
-    config = data_processing.get_config()
 
-    # Load and check new and original Illumina sample directories and files
-    try:
-        # Retrieve sample paths from the config and check for expected files
-        new_illumina_paths = retrieve_samples(config["Illumina"]["new"])
-        original_illumina_paths = retrieve_samples(config["Illumina"]["original"])
-
-        new_illumina = check_samples(new_illumina_paths)
-        original_data = check_samples(original_illumina_paths)
-
-        # Collect parsed data from each set
-        l_new = data_collection_from_dict(new_illumina)
-        l_og = data_collection_from_dict(original_data)
-
-    except Exception as e:
-        logging.error(f"Failed to retrieve or check Illumina sample data: {str(e)}")
-        raise SystemExit(f"Error loading sample paths or data collection failed: {e}")
-
-    
-   
-    # This list will hold dictionaries of prefix-separated DataFrames for each analysis result
-    l_dict_dfs = []
-
-    for df in l_new:
-        try:
-            # Extract sample prefixes from DataFrame index and group rows by prefix
-            df["Prefix"] = df.index.to_series().apply(extract_prefix)
-            # Create dictionary where each key is a prefix and value is a DataFrame subset
-            dict_dfs = {prefix: sub_df.drop(columns=["Prefix"]) for prefix, sub_df in df.groupby("Prefix")}
-            l_dict_dfs.append(dict_dfs)
-            dfs = {}  # Initialize empty dict (not currently used)
-        except:
-            # Skip any DataFrames that fail this grouping step
-            continue
-
-    # Merge new and original MLST results per prefix
-    mlst_dict = {key: pd.concat([df, l_og[0]]) for key, df in l_dict_dfs[0].items()}
-
-    # Merge new and original PlasmidFinder results per prefix
-    plasmid_finder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[1].items()}
-
-    # Print merged PlasmidFinder results for visual inspection
-    print(plasmid_finder)
-
-    # You could also print/inspect other merged outputs similarly if needed
     
 
