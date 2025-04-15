@@ -34,6 +34,21 @@ Handles:
 
 ---
 
+
+
+## Installation
+
+Make sure you have **Python >3.8** and the required dependencies installed.
+
+To install the package and script locally:
+
+```bash
+git clone https://github.com/ssi-dk/bifrost_reporter
+cd bifrost_reporter
+pip install .
+```
+
+
 ## Input Requirements
 
 ###  Configuration file
@@ -48,8 +63,8 @@ project:
     name: "EQA"
 
 Illumina:
-    new:  "/home/simonescrima/Desktop/bifrost_reporter/input/bifrost_samples/sample_sheet.xlsx"
-    original:  "/dpssi/data/Projects/rar_research/proj/Shared_projects/ms_WP9_benchmark/Illumina_original/sample_sheet.xlsx"
+    new:  "/xxx/xxx/xxx/sample_sheet.xlsx"
+    original:  "/xxx/xxx/xxx/Illumina_original/sample_sheet.xlsx"
 ```
 
 Where in this case `new` are the sample to be compared again `original`.
@@ -73,10 +88,24 @@ Each sample directory must contain:
 
 ## Usage
 
-Run the following command:
+
+### 1. Run the Reporter
+
+The config YAML file specifying paths to your sample sheets:
+
+```bash
+Illumina:
+  new: /path/to/new/samples.xlsx
+  original: /path/to/original/samples.xlsx
 ```
-python bifrost_reporter/data_collection.py
+
+### 2. Run the Reporter
+
+Use the installed command-line tool like this:
+
+```bash
+bifrost_reporter -c config.yaml -l report.log
 ```
-
-
-
+Argument | Description | Required | Default
+-c, --config | Path to your configuration YAML file. | Yes | —
+-l, --log | Path to your log file. | No | bifrost_results.log
