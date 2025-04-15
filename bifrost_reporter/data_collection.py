@@ -1,12 +1,11 @@
+#!/usr/bin/env python
+
 # Import necessary libraries
 from bifrost_reporter import data_processing
 import logging
-from bson import ObjectId  # Used for MongoDB object IDs if needed
 import pandas as pd
-import numpy as np
-import glob
 import os
-from collections import defaultdict
+
 
 
 def retrieve_samples(sample_sheet_path):

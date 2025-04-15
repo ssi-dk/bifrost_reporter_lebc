@@ -1,6 +1,16 @@
-# ---------------------------------------------------------------
-# Bioinformatics YAML Parsing Utilities for Bifrost Pipelines
-# ---------------------------------------------------------------
+#!/usr/bin/env python
+
+import importlib
+import importlib.util
+import logging
+import pandas as pd
+from bson import ObjectId
+import yaml
+import numpy as np
+import warnings
+import os
+import envyaml
+
 
 # This script includes helper functions to parse and normalize various YAML outputs
 # from a bioinformatics pipeline such as Bifrost. These include:
@@ -12,19 +22,6 @@
 # - Assembly quality metrics
 # - QC stamping for pipeline success/failure
 
-# ------------------
-# IMPORT DEPENDENCIES
-# ------------------
-import importlib
-import importlib.util
-import logging
-import pandas as pd
-from bson import ObjectId
-import yaml
-import numpy as np
-import warnings
-import os
-import envyaml
 
 # ---------------
 # CONFIG LOADING
@@ -78,6 +75,8 @@ def get_config(config_path: str = None):
         return config
     except Exception as e:
         raise RuntimeError(f"Failed to load config file: {config_path}. Error: {str(e)}")
+
+
 
 # ----------------------
 # CUSTOM YAML HANDLERS
