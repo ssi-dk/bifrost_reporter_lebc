@@ -10,6 +10,8 @@ import argparse
 import logging
 import yaml
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 pd.set_option('display.max_rows', 1000)  # Show more rows when displaying DataFrames
 pd.set_option('display.max_colwidth', None)  # Don't truncate column contents
 
@@ -81,6 +83,7 @@ if __name__ == '__main__':
         logging.error(f"Failed to retrieve or check Illumina sample data: {str(e)}")
         raise SystemExit(f"Error loading sample paths or data collection failed: {e}")
 
+
     # Organize new results by prefix
     l_dict_dfs = []
     for df in l_new:
@@ -91,11 +94,21 @@ if __name__ == '__main__':
         except:
             continue
 
-    # Merge new and original MLST results by prefix
+    # Merge new and original results by prefix
     mlst_dict = {key: pd.concat([df, l_og[0]]) for key, df in l_dict_dfs[0].items()}
 
-    # Merge new and original PlasmidFinder results by prefix
     plasmid_finder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[1].items()}
 
-    # Print merged PlasmidFinder results
-    print(plasmid_finder)
+    resfinder = {key: pd.concat([df, l_og[2]]) for key, df in l_dict_dfs[2].items()}
+    
+    virulence_finder = {key: pd.concat([df, l_og[3]]) for key, df in l_dict_dfs[3].items()}
+ 
+    assemblatron = {key: pd.concat([df, l_og[4]]) for key, df in l_dict_dfs[4].items()}
+
+    kma = {key: pd.concat([df, l_og[5]]) for key, df in l_dict_dfs[5].items()}
+
+    amr_plus = {key: pd.concat([df, l_og[6]]) for key, df in l_dict_dfs[6].items()}
+
+    ssi_stamper = {key: pd.concat([df, l_og[7]]) for key, df in l_dict_dfs[7].items()}
+
+    res_lab_stamper = {key: pd.concat([df, l_og[8]]) for key, df in l_dict_dfs[8].items()}
