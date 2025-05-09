@@ -6,10 +6,13 @@ from bifrost_reporter.data_collection import (
     check_samples,
     data_collection_from_dict,
     extract_prefix)
+from bifrost_reporter.data_visualization import spam_tables_for_all_kmas
+from bifrost_reporter.data_visualization import parse_dfs
 import argparse
 import logging
 import yaml
 import pandas as pd
+import os
 pd.set_option('display.max_rows', 1000)  # Show more rows when displaying DataFrames
 pd.set_option('display.max_colwidth', None)  # Don't truncate column contents
 
@@ -49,10 +52,18 @@ def parse_arguments():
         default="bifrost_results.log",
         help="Path to the log file (default: bifrost_results.log)."
     )
+    parser.add_argument(
+        "-o", "--output_folder",
+        default = "bifrost_results_output_folder",
+        help = "folder to dump parsed and combined dataframes"
+    )
     return parser.parse_args()
 
 
-
+def write_dfs(df_dict, analysis_type, output_folder):
+    for k in df_dict.keys():    
+        df_dict[k].to_csv(os.path.join(output_folder, analysis_type + '-' + k + '.csv'))
+        
 
 
 if __name__ == '__main__':
@@ -93,9 +104,35 @@ if __name__ == '__main__':
 
     # Merge new and original MLST results by prefix
     mlst_dict = {key: pd.concat([df, l_og[0]]) for key, df in l_dict_dfs[0].items()}
-
+    
     # Merge new and original PlasmidFinder results by prefix
-    plasmid_finder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[1].items()}
+    #plasmid_finder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[1].items()}
+    #print(l_dict_dfs)
+    #resfinder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[2].items()}
+    virulencefinder = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[3].items()}
+    #assemblatron = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[4].items()}
+    #kma = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[5].items()}
+    #amr = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[6].items()}
+    #ssi_stamper = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[7].items()}
+    #reslab_stamper = {key: pd.concat([df, l_og[1]]) for key, df in l_dict_dfs[8].items()}
 
     # Print merged PlasmidFinder results
-    print(plasmid_finder)
+    #print(plasmid_finder)
+    if not os.path.isdir(args.output_folder):
+        os.mkdir(args.output_folder)
+
+    #write_dfs(mlst_dict, 'mlst', args.output)
+    #write_dfs(plasmid_finder, 'plasmid_finder', args.output)
+    #write_dfs(resfinder, 'resfinder', args.output)
+    #write_dfs(virulencefinder, 'virulencefinder', args.output)
+    #write_dfs(assemblatron, 'assemblatron', args.output)
+    #write_dfs(kma, 'kma', args.output)
+    #write_dfs(amr, 'amr', args.output)
+    #write_dfs(ssi_stamper, 'ssi_stamper', args.output)
+    #write_dfs(reslab_stamper, 'reslab_stamper', args.output)
+    mlst_dfs_list = [mlst_dict[k] for k in mlst_dict.keys()]
+    processed_df_mlst, mlst_kmas, mlst_samples = parse_dfs(mlst_dfs_list, 'mlst', rename_dict = {'0':'ST'})
+    spam_tables_for_all_kmas(processed_df_mlst, mlst_samples, mlst_kmas, comparison_col = 'all', column_subset = [], output_folder = args.output_folder, analysis_type = 'mlst')
+    virulencefinder_dfs_list = [virulencefinder[k] for k in virulencefinder.keys()]
+    processed_df_virulencefinder, virulencefinder_kmas, virulencefinder_samples = parse_dfs(virulencefinder_dfs_list, 'virulencefinder')
+    spam_tables_for_all_kmas(processed_df_virulencefinder, virulencefinder_samples, virulencefinder_kmas, comparison_col = 'GENE', column_subset = ['GENE'], output_folder = args.output_folder, analysis_type = 'virulencefinder')
